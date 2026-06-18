@@ -1,0 +1,21 @@
+# Java Compiled Class Files
+*.class
+
+# Build / Output folders
+build/
+bin/
+out/
+
+# IDE files
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+.vscode/
+
+# Local database file (data persistence)
+ogrenciler.txt
+
+# Log files
+*.log
