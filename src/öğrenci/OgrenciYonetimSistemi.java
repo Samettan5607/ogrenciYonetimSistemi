@@ -5,165 +5,11 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// --- OGRENCI SINIFI ---
-class Ogrenci {
-    private String ogrenciNo;
-    private String ad;
-    private String soyad;
-    private String bolum;
-    private double vize;
-    private double finalNotu;
-    private double ortalama;
-    private String harfNotu;
-    private String durum;
-
-    public Ogrenci(String ogrenciNo, String ad, String soyad, String bolum, double vize, double finalNotu) {
-        this.ogrenciNo = ogrenciNo;
-        this.ad = ad;
-        this.soyad = soyad;
-        this.bolum = bolum;
-        this.vize = vize;
-        this.finalNotu = finalNotu;
-        hesapla();
-    }
-
-    public void hesapla() {
-        this.ortalama = this.vize * 0.4 + this.finalNotu * 0.6;
-        
-        if (this.ortalama >= 90) this.harfNotu = "AA";
-        else if (this.ortalama >= 85) this.harfNotu = "BA";
-        else if (this.ortalama >= 80) this.harfNotu = "BB";
-        else if (this.ortalama >= 75) this.harfNotu = "CB";
-        else if (this.ortalama >= 70) this.harfNotu = "CC";
-        else if (this.ortalama >= 60) this.harfNotu = "DC";
-        else if (this.ortalama >= 50) this.harfNotu = "DD";
-        else if (this.ortalama >= 40) this.harfNotu = "FD";
-        else this.harfNotu = "FF";
-
-        if (this.ortalama >= 50 && this.finalNotu >= 50) {
-            this.durum = "Geçti";
-        } else {
-            this.durum = "Kaldı";
-        }
-    }
-
-    // Getters & Setters
-    public String getOgrenciNo() { return ogrenciNo; }
-    public void setOgrenciNo(String ogrenciNo) { this.ogrenciNo = ogrenciNo; }
-
-    public String getAd() { return ad; }
-    public void setAd(String ad) { this.ad = ad; }
-
-    public String getSoyad() { return soyad; }
-    public void setSoyad(String soyad) { this.soyad = soyad; }
-
-    public String getBolum() { return bolum; }
-    public void setBolum(String bolum) { this.bolum = bolum; }
-
-    public double getVize() { return vize; }
-    public void setVize(double vize) { this.vize = vize; hesapla(); }
-
-    public double getFinalNotu() { return finalNotu; }
-    public void setFinalNotu(double finalNotu) { this.finalNotu = finalNotu; hesapla(); }
-
-    public double getOrtalama() { return ortalama; }
-    public String getHarfNotu() { return harfNotu; }
-    public String getDurum() { return durum; }
-}
-
-// --- VERITABANI SINIFI ---
-class VeriTabani {
-    private final List<Ogrenci> ogrenciler = new ArrayList<>();
-    private final String dosyaYolu;
-
-    public VeriTabani() {
-        String desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-        this.dosyaYolu = desktopPath + File.separator + "ogrenciler.txt";
-        verileriYukle();
-    }
-
-    public List<Ogrenci> getOgrenciler() {
-        return ogrenciler;
-    }
-
-    public void ekle(Ogrenci ogrenci) {
-        for (Ogrenci o : ogrenciler) {
-            if (o.getOgrenciNo().equalsIgnoreCase(ogrenci.getOgrenciNo())) {
-                throw new IllegalArgumentException("Bu öğrenci numarası zaten mevcut!");
-            }
-        }
-        ogrenciler.add(ogrenci);
-        verileriKaydet();
-    }
-
-    public void sil(String ogrenciNo) {
-        ogrenciler.removeIf(o -> o.getOgrenciNo().equalsIgnoreCase(ogrenciNo));
-        verileriKaydet();
-    }
-
-    public void guncelle(String eskiNo, Ogrenci yeniOgrenci) {
-        for (int i = 0; i < ogrenciler.size(); i++) {
-            if (ogrenciler.get(i).getOgrenciNo().equalsIgnoreCase(eskiNo)) {
-                if (!eskiNo.equalsIgnoreCase(yeniOgrenci.getOgrenciNo())) {
-                    for (Ogrenci o : ogrenciler) {
-                        if (o.getOgrenciNo().equalsIgnoreCase(yeniOgrenci.getOgrenciNo())) {
-                            throw new IllegalArgumentException("Yeni öğrenci numarası zaten başka bir öğrencide mevcut!");
-                        }
-                    }
-                }
-                ogrenciler.set(i, yeniOgrenci);
-                verileriKaydet();
-                return;
-            }
-        }
-    }
-
-    public void verileriKaydet() {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dosyaYolu), "UTF-8"))) {
-            for (Ogrenci o : ogrenciler) {
-                bw.write(String.format("%s;%s;%s;%s;%.2f;%.2f\n",
-                        o.getOgrenciNo(), o.getAd(), o.getSoyad(), o.getBolum(), o.getVize(), o.getFinalNotu()));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void verileriYukle() {
-        File file = new File(dosyaYolu);
-        if (!file.exists()) return;
-        ogrenciler.clear();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] parts = line.split(";");
-                if (parts.length == 6) {
-                    try {
-                        String no = parts[0];
-                        String ad = parts[1];
-                        String soyad = parts[2];
-                        String bolum = parts[3];
-                        double vize = Double.parseDouble(parts[4].replace(",", "."));
-                        double fnal = Double.parseDouble(parts[5].replace(",", "."));
-                        ogrenciler.add(new Ogrenci(no, ad, soyad, bolum, vize, fnal));
-                    } catch (NumberFormatException e) {
-                        // geçersiz satırları atla
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-// --- MODERNIZE EDILMIS YUMUSAK KENARLI BUTON ---
 class RoundedButton extends JButton {
     private final Color normalColor;
     private final Color hoverColor;
@@ -452,7 +298,7 @@ public class OgrenciYonetimSistemi extends JFrame {
     private final Color infoColor = new Color(52, 152, 219);     // Mavi
     private final Color bgColor = new Color(245, 246, 250);       // Açık Gri
     
-    public OgrenciYonetimSistemi() {
+    public OgrenciYonetimSistemi() throws IOException {
         veriTabani = new VeriTabani();
 
         // Pencere ayarları
@@ -756,9 +602,13 @@ public class OgrenciYonetimSistemi extends JFrame {
                 "Silme Onayı", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                veriTabani.sil(no);
-                refreshData();
-                JOptionPane.showMessageDialog(this, "Öğrenci kaydı başarıyla silindi.", "Başarılı", JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    veriTabani.sil(no);
+                    refreshData();
+                    JOptionPane.showMessageDialog(this, "Öğrenci kaydı başarıyla silindi.", "Başarılı", JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Kayıt Silinemedi", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -919,7 +769,6 @@ public class OgrenciYonetimSistemi extends JFrame {
     }
 
     private void refreshData() {
-        veriTabani.verileriYukle();
         populateTable(veriTabani.getOgrenciler());
         updateDashboard();
     }
@@ -1010,7 +859,7 @@ public class OgrenciYonetimSistemi extends JFrame {
             vize = Double.parseDouble(vizeStr.replace(",", "."));
             fnal = Double.parseDouble(finalStr.replace(",", "."));
 
-            if (vize < 0 || vize > 100 || fnal < 0 || fnal > 100) {
+            if (!VeriTabani.gecerliNot(vize) || !VeriTabani.gecerliNot(fnal)) {
                 JOptionPane.showMessageDialog(this, "Notlar 0 ile 100 arasında olmalıdır.", "Hatalı Not", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -1037,7 +886,7 @@ public class OgrenciYonetimSistemi extends JFrame {
             cardLayout.show(cardPanel, "LIST");
             setActiveButton(btnList);
 
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | IOException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Hata", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -1066,6 +915,12 @@ public class OgrenciYonetimSistemi extends JFrame {
 
     // --- MAIN ---
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new OgrenciYonetimSistemi());
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new OgrenciYonetimSistemi();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Uygulama Açılamadı", JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
 }
