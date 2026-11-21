@@ -1,54 +1,47 @@
-# 🎓 Gelişmiş Öğrenci Yönetim Sistemi (ÖYS)
+# Öğrenci Yönetim Sistemi
 
-Java Swing kullanılarak geliştirilmiş, modern tasarıma, veri kalıcılığına ve akıllı not hesaplama özelliklerine sahip gelişmiş bir **Öğrenci Yönetim Sistemi** (Student Management System) uygulamasıdır.
+Öğrenci kayıtlarını, sınav notlarını ve sınıf istatistiklerini tek pencerede yöneten bir Java Swing masaüstü uygulaması. Harici kütüphane veya veritabanı kurulumu gerektirmez.
 
----
+## Özellikler
 
-## ✨ Özellikler
+- Öğrenci ekleme, düzenleme ve onaylı silme
+- Öğrenci numarası, ad soyad ve bölüme göre arama
+- Toplam öğrenci sayısı, sınıf ortalaması ve geçme oranını gösteren panel
+- Öğrenci kayıtlarını UTF-8 dosyasında saklama
 
-- **Modern Yönetici Paneli (Dashboard)**: Sekmeli yapı yerine sol menü (Sidebar) tasarımına sahip modern masaüstü uygulaması görünümü.
-- **İstatistiksel Analiz (KPI Cards)**: Toplam öğrenci sayısı, sınıf ortalaması, geçen ve kalan öğrenci sayısını anlık olarak gösteren renk kodlu KPI kartları.
-- **Dinamik Başarı Grafiği (`BasariBar`)**: Sınıfın geçme/kalma oranını zümrüt yeşili ve mercan kırmızısı tonlarında gösteren, Java 2D Graphics ile özel çizilmiş başarı çubuğu.
-- **Gelişmiş Arama ve Filtreleme**: Numaraya, isme veya bölüme göre kelime bazlı filtreleme.
-- **Dosya Tabanlı Kalıcı Depolama (Data Persistence)**: Masaüstünde otomatik oluşturulan `ogrenciler.txt` dosyası yardımıyla veriler CSV formatında (UTF-8 kodlamasında) saklanır; program kapansa dahi verileriniz kaybolmaz.
-- **Özel Arayüz Bileşenleri**:
-  - `RoundedButton`: Fare ile üzerine gelindiğinde aydınlanan yumuşak köşeli modern butonlar.
-  - `RoundedTextField`: Odaklanıldığında turkuaz renkli çerçeve kalınlığı artan modern girdi alanları.
-  - Zebra desenli (`alternate row colors`) ve göz yormayan açık turkuaz seçilim rengine sahip modern `JTable` listesi.
+## Derleme ve çalıştırma
 
----
+JDK 11 veya üzeri ve grafik masaüstü ortamı gerekir. Aşağıdaki komutları deponun kök klasöründe çalıştırın. Aynı komutlar PowerShell ve Bash üzerinde kullanılabilir.
 
-## 🛠️ Gereksinimler
-
-- **Java Development Kit (JDK)**: JDK 11 veya üzeri sürüm (JDK 25 ile test edilmiştir).
-- **İşletim Sistemi**: Windows (Windows Look and Feel entegrasyonu mevcuttur).
-
----
-
-## 🚀 Çalıştırma Talimatları
-
-Projeyi yerel bilgisayarınızda derlemek ve çalıştırmak için aşağıdaki adımları takip edebilirsiniz:
-
-1. **Projeyi Derleyin**:
-   ```bash
-   # build klasörünü oluşturun
-   mkdir build
-
-   # Kodları UTF-8 formatında derleyin
-   javac -encoding UTF-8 -d build src/öğrenci/OgrenciYonetimSistemi.java
-   ```
-
-2. **Uygulamayı Çalıştırın**:
-   ```bash
-   java -cp build öğrenci.OgrenciYonetimSistemi
-   ```
-
----
-
-## 📂 Veri Saklama Yapısı
-
-Uygulama, verilerini masaüstünüzde (`~/Desktop/ogrenciler.txt`) şu yapıda saklar:
-```csv
-OgrenciNo;Ad;Soyad;Bolum;VizeNotu;FinalNotu
+```sh
+javac -encoding UTF-8 -d build "src/öğrenci/Ogrenci.java" "src/öğrenci/VeriTabani.java" "src/öğrenci/OgrenciYonetimSistemi.java"
+java -cp build öğrenci.OgrenciYonetimSistemi
 ```
-*Not: Not ortalamaları, harf notları ve geçme durumları vize (%40) ve final (%60) notlarına göre çalışma zamanında dinamik olarak hesaplanır.*
+
+## Uygulamayı kullanma
+
+1. **Yeni Öğrenci Ekle** ekranında öğrenci numarasını, adını, soyadını, bölümünü ve notlarını girin. Öğrenci numarası benzersiz olmalı ve notlar 0–100 aralığında olmalıdır. Ondalık notlarda virgül veya nokta kullanabilirsiniz.
+2. **Öğrenci Listesi** ekranında arama yapabilir, bir satırı seçip düzenleyebilir veya silebilirsiniz.
+3. **Gösterge Paneli** üzerinden sınıf istatistiklerini izleyebilirsiniz. Ağırlıklı ortalama, vizenin %40'ı ile finalin %60'ının toplamıdır. Geçmek için hem ortalamanın hem final notunun en az 50 olması gerekir.
+
+## Veri dosyası
+
+Kayıtlar, kullanıcı klasörünün altındaki `Desktop/ogrenciler.txt` dosyasında saklanır. İlk başarılı kayıtta dosya ve gerekirse `Desktop` klasörü oluşturulur. UTF-8 dosyasında başlık satırı yoktur. Her satır bir öğrenci kaydıdır.
+
+```text
+1001;Deniz;Yılmaz;Bilgisayar Mühendisliği;75.0;85.5
+```
+
+Alan sırası öğrenci numarası, ad, soyad, bölüm, vize ve finaldir. Metin alanlarında noktalı virgül ve satır sonu kullanılamaz. Ortalama, harf notu ve geçme durumu uygulama tarafından hesaplanır.
+
+Önceki sürümün noktalı veya virgüllü not içeren dosyaları okunabilir. Uygulama geçersiz bir kayıt bulursa açılışta dosya yolunu ve satır numarasını gösterir. Kayıt hatasında mevcut dosya korunur ve hata ekranda gösterilir. Dosyayı yedeklemek için uygulama kapalıyken bir kopyasını alın.
+
+Uygulama tek kullanıcı ve tek açık pencere ile kullanım için tasarlanmıştır. Uygulama içi kullanıcı hesabı ve rol kontrolü yoktur. Öğrenci bilgileri düz metin olarak saklanır ve dosyaya erişimi işletim sistemi izinleri belirler.
+
+## Kaynak kod
+
+| Dosya | Sorumluluk |
+|---|---|
+| `OgrenciYonetimSistemi.java` | Swing ekranları, arama ve kullanıcı işlemleri |
+| `Ogrenci.java` | Öğrenci bilgileri, ağırlıklı ortalama, harf notu ve geçme durumu |
+| `VeriTabani.java` | Kayıt doğrulama, yerel dosyayı okuma ve güvenli biçimde değiştirme |
